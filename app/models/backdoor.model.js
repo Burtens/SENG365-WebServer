@@ -48,8 +48,7 @@ async function populateDefaultUsers() {
     usersData = usersData.map(user => ([...user]));
 
     const passwordIndex = properties.indexOf('password');
-    const emailIndex = properties.indexOf('email');
-    await Promise.all(usersData.map(user => changePasswordToHash(user, passwordIndex, emailIndex)));
+    await Promise.all(usersData.map(user => changePasswordToHash(user, passwordIndex)));
 
     try {
         await db.getPool().query(createSQL, [usersData]);
@@ -59,8 +58,8 @@ async function populateDefaultUsers() {
     }
 }
 
-async function changePasswordToHash(user, passwordIndex, emailIndex) {
-    user[passwordIndex] = await passwords.hash(user[passwordIndex], user[emailIndex]);
+async function changePasswordToHash(user, passwordIndex) {
+    user[passwordIndex] = await passwords.hash(user[passwordIndex]);
 }
 
 exports.executeSql = async function (sql) {

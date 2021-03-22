@@ -1,11 +1,17 @@
-let crypto = require('crypto');
+const bcrypt = require('bcrypt');
+const saltRounds = 10;
 
+// Using bcrypt to hash password
+exports.hash = async function(password) {
+    return bcrypt.hashSync(password, saltRounds);
+}
 
-// Generates a password hash using email as unique salt
-// Uses the 'sha512' algorithm for hashing
-exports.hash = async function(password, email) {
+// Using bcrypt to compare passwords
+exports.check = async function(password, storedPassword) {
+    return bcrypt.compareSync(password, storedPassword);
+}
 
-    let hash = crypto.createHmac('sha512', email);
-    hash.update(password);
-    return hash.digest('hex');
+// Generates a random token using salt generator from bcrypt
+exports.generateToken = async function() {
+    return bcrypt.genSalt(2);
 }
