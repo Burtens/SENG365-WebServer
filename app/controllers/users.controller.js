@@ -25,14 +25,17 @@ exports.register = async function(req, res) {
         }
 
         if (error) { // Sends 'Bad Request' Status
-            res.status(400).send('Bad Request');
+            res.statusMessage = 'Bad Request';
+            res.status(400).send();
         } else {
             users.register(firstName, lastName, email, password).then((id) => {
                 res.status(201).send(id[0]);
             });
         }
     } catch ( err ) {
-        res.status(500).send('Internal Server Error');
+        console.log(err);
+        res.statusMessage = 'Internal Server Error';
+        res.status(500).send();
     }
 }
 
@@ -51,14 +54,18 @@ exports.login = async function(req, res) {
         }
 
         if (error) {
-            res.status(400).send('Bad Request');
+            res.statusMessage = 'Bad Request';
+            res.status(400).send();
         } else {
             const values = await users.login(email);
             // Returns a JSON object of values required
+            res.statusMessage = 'OK'
             res.status(200).send(values);
         }
     } catch ( err ) {
-        res.status(500).send('Internal Server Error');
+        console.log(err);
+        res.statusMessage = 'Internal Server Error';
+        res.status(500).send();
     }
 }
 
@@ -66,13 +73,17 @@ exports.login = async function(req, res) {
 exports.logout = async function(req, res) {
     const authToken = req.header('X-Authorization');
     if (authToken === undefined || authToken === null) {
-        res.status(401).send('Unauthorized');
+        res.statusMessage = 'Unauthorized';
+        res.status(401).send();
     } else {
         try {
             await users.logout(authToken);
-            res.status(200).send('OK');
+            res.statusMessage = 'OK';
+            res.status(200).send();
         } catch (err) {
-            res.status(500).send('Internal Server Error');
+            console.log(err);
+            res.statusMessage = 'Internal Server Error';
+            res.status(500).send();
         }
     }
 }
@@ -84,13 +95,17 @@ exports.getUser = async function(req, res) {
 
     try {
         if (!await users.checkIdExists(id)) {
-            res.status(404).send('Not Found');
+            res.statusMessage = 'Not Found';
+            res.status(404).send();
         } else {
             const userData = await users.getUser(authToken, id);
+            res.statusMessage = 'OK';
             res.status(200).send(userData);
         }
     } catch (err) {
-        res.status(500).send('Internal Server Error');
+        console.log(err);
+        res.statusMessage = 'Internal Server Error';
+        res.status(500).send();
     }
 }
 
@@ -110,7 +125,11 @@ exports.updateUser = async function(req, res) {
 
     try {
         if (authToken === undefined || !await users.isAuthorized(id, authToken)) { // Checks if user is allowed to preform this action
-            res.status(400).send('Unauthorized');
+            res.statusMessage = 'Unauthorized';
+            res.status(400).send();
+        } else if (!await users.checkIdExists(id)) {
+            res.statusMessage = 'Not Found'
+            res.status(404).send();
         } else {
             if (newPassword !== undefined) { // If user wants to change password this should be defined
                 if (currPassword === undefined || !await users.comparePassword(id, currPassword)) {
@@ -130,16 +149,21 @@ exports.updateUser = async function(req, res) {
             }
 
             if (error) {
-                res.status(400).send('Bad Request');
+                res.statusMessage = 'Bad Request';
+                res.status(400).send();
             } else if (forbidden) {
-                res.status(403).send('Forbidden');
+                res.statusMessage = 'Forbidden';
+                res.status(403).send();
             } else {
                 await users.updateUser(id, firstName, lastName, email, newPassword);
-                res.status(200).send("OK");
+                res.statusMessage = 'OK';
+                res.status(200).send();
             }
         }
     } catch ( err ) {
-        res.status(500).send('Internal Server Error');
+        console.log(err);
+        res.statusMessage = 'Internal Server Error';
+        res.status(500).send();
     }
 
 }

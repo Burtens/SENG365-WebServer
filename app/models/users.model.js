@@ -59,49 +59,51 @@ exports.getUser = async function(authToken, id) {
 
 exports.updateUser = async function(id, firstName, lastName, email, newPassword) {
 
-    let sql = '';
+    let sql = 'UPDATE user SET ';
     let values = []
 
     if (firstName !== undefined) {
-        if (!sql.includes('UPDATE user SET ')){
-            sql += 'UPDATE user SET ';
+        if (sql === 'UPDATE user SET ') {
+            sql += 'first_name = ? ';
+        } else {
+            sql += ', first_name = ? ';
         }
-        sql += 'first_name = ? '
         values.push(firstName);
     }
 
     if (lastName !== undefined) {
-        if (!sql.includes('UPDATE user SET ')){
-            sql += 'UPDATE user SET ';
+        if (sql === 'UPDATE user SET ') {
+            sql += 'last_name = ? ';
+        } else {
+            sql += ', last_name = ? ';
         }
-        sql += 'last_name = ? '
         values.push(lastName);
     }
 
     if (email !== undefined) {
-        if (!sql.includes('UPDATE user SET ')){
-            sql += 'UPDATE user SET ';
+        if (sql === 'UPDATE user SET ') {
+            sql += 'email = ? ';
+        } else {
+            sql += ', email = ? ';
         }
-        sql += 'email = ? '
         values.push(email);
     }
 
     if (newPassword !== undefined) {
-        if (!sql.includes('UPDATE user SET ')){
-            sql += 'UPDATE user SET ';
+        if (sql === 'UPDATE user SET ') {
+            sql += 'password = ? ';
+        } else {
+            sql += ', password = ? ';
         }
-        sql += 'password = ? '
         values.push(await passwords.hash(newPassword));
     }
 
-    if (sql !== '') {
-        sql += 'WHERE id = ?'
+    if (sql !== 'UPDATE user SET ') {
+        sql += 'WHERE id = ?';
         values.push(id);
+        await executeSql(sql, values);
     }
-
-    await executeSql(sql, values);
 }
-
 
 exports.checkEmailExists = async function(email) {
     const sql = 'SELECT email from user WHERE email = ?';
@@ -112,6 +114,7 @@ exports.checkEmailExists = async function(email) {
 }
 
 exports.checkIdExists = async function(id) {
+    // TODO: Use this method in events to check for id
     const sql = 'SELECT id from user WHERE id = ?';
     const rows = await executeSql(sql, [ id ]);
 
