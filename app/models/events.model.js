@@ -47,13 +47,12 @@ exports.getAll = async function(startIndex, count, q, categoryList, organiserId,
     }
 
     // If user wants to find events by a specific organiser
-    if ( !isNaN(organiserId) && organiserId !== undefined ) {
+    if (organiserId !== undefined ) {
         sql += 'AND event.organizer_id = ? ';
-        values.push(organiserId);
+        values.push(parseInt(organiserId));
     }
 
     sql += 'GROUP BY event.id ';
-
     // Get sort column and order
     if (sortBy !== '' && sortBy !== undefined) {
         sql += await getSortBy(sortBy);
@@ -62,25 +61,23 @@ exports.getAll = async function(startIndex, count, q, categoryList, organiserId,
     }
 
     // Checks if count is defined this determines weather the LIMIT attribute should be added
-    if (!isNaN(count) && count !== undefined) {
+    if (count !== undefined) {
         // LIMIT offset, count
         sql += 'LIMIT ?, ? '
         // If startIndex is not defined the offset should be 0
-        if (isNaN(startIndex) && startIndex !== undefined) {
-            values.push(0, count);
+        if (startIndex !== undefined) {
+            values.push(parseInt(startIndex), parseInt(count));
         } else {
-            values.push(startIndex, count);
+            values.push(0, parseInt(count));
         }
+    } else if (startIndex !== undefined) {
+        // LIMIT offset, count
+        sql += 'LIMIT ?, ? '
+        // If startIndex is not defined the offset should be 0
+            values.push(parseInt(startIndex),  4294967295);
     }
 
-    try {
-        return await executeSql(sql, values);
-        //Run query to get all events
-    } catch ( err ) {
-        console.log(err);
-        throw err;
-    }
-
+    return await executeSql(sql, values);
 }
 
 // Adds a new event
@@ -328,11 +325,6 @@ async function getSortBy (sortBy) {
 }
 
 async function executeSql(sql, values) {
-    try {
         const [rows] = await db.getPool().query(sql, values);
         return rows;
-    } catch (err) {
-        console.log(err.sql);
-        throw err;
-    }
 }

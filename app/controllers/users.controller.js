@@ -73,7 +73,6 @@ exports.login = async function(req, res) {
 // Logs out current user if they are logged in
 exports.logout = async function(req, res) {
     const authToken = req.header('X-Authorization');
-    console.log(authToken);
     if (authToken === undefined || authToken === 'null' || !await auth.isAuthorized(authToken)) {
         res.statusMessage = 'Unauthorized';
         res.status(401).send();
@@ -123,7 +122,6 @@ exports.updateUser = async function(req, res) {
     const currPassword = req.body.currentPassword;
 
     let error = false;
-    let forbidden = false;
     //
     try {
         if (authToken === undefined || authToken === 'null' || !await auth.isAuthorized(authToken)) {

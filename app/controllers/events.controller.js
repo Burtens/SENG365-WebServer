@@ -18,34 +18,39 @@ const validSortBy = [
 // Gets all events in the database
 exports.getAll = async function (req, res) {
 
-    const startIndex = parseInt(req.query.startIndex);
-    const count = parseInt(req.query.count);
+    const startIndex = req.query.startIndex;
+    const count = req.query.count;
     const q = req.query.q;
-    const categoryList = req.query.categoryIds;
-    const organizerId = parseInt(req.query.organizerId);
+    let categoryList = req.query.categoryIds;
+    const organizerId = req.query.organizerId;
     const sortBy = req.query.sortBy;
 
     let error = false;
 
-    // Checks if all given values are valid, if they arent return status '400' "Bad Request"
-    if (req.query.startIndex !== undefined && (isNaN(startIndex) || startIndex < 0)) {
-        error = true;
-    } else if (req.query.count !== undefined && (isNaN(count) || count < 0)) {
-        error = true;
-    } else if (req.query.organizerId !== undefined && (isNaN(organizerId) || organizerId < 0)) {
-        error = true;
-    } else if (sortBy !== undefined && validSortBy.indexOf(sortBy) === -1) {
-        error = true;
-    } else if (categoryList !== undefined) {
-        for (const category in categoryList) {
-            const categoryNum = parseInt(categoryList[category]);
-            if (isNaN(categoryNum) || categoryNum < 0) {
-                error = true;
+    try {
+        // Checks if all given values are valid, if they arent return status '400' "Bad Request"
+        if (startIndex !== undefined && (isNaN(parseInt(startIndex)) || parseInt(startIndex) < 0)) {
+            error = true;
+        } else if (count !== undefined && (isNaN(parseInt(count)) || parseInt(count) < 0)) {
+            error = true;
+        } else if (organizerId !== undefined && (isNaN(parseInt(organizerId)) || parseInt(organizerId) < 0)) {
+            error = true;
+        } else if (sortBy !== undefined && validSortBy.indexOf(sortBy) === -1) {
+            error = true;
+        } else if (categoryList !== undefined) {
+
+            if (!Array.isArray(categoryList)) {
+                categoryList = [categoryList];
+            }
+
+            for (const category in categoryList) {
+                const categoryNum = categoryList[category];
+                if (isNaN(categoryNum) || categoryNum < 0 || !await events.checkCategory(categoryNum)) {
+                    error = true;
+                }
             }
         }
-    }
 
-    try {
         if (error) { // Sends 'Bad Request' Status
             res.statusMessage = 'Bad Request';
             res.status(400).send();
@@ -118,9 +123,15 @@ exports.getOne = async function (req, res) {
         } else {
             res.statusMessage = 'OK';
             event[0].categories =  await convertCategoriesToList(event[0].categories.split(','));
+
             if (event[0].numAcceptedAttendees === null) {
                 event[0].numAcceptedAttendees = 0;
             }
+
+            event[0].isOnline = event[0].isOnline !== 0;
+            event[0].requiresAttendanceControl = event[0].requiresAttendanceControl !== 0;
+            event[0].fee = parseFloat(event[0].fee);
+
             res.status(200).send(event[0]);
         }
     } catch ( err ) {
@@ -274,7 +285,11 @@ async function convertCategoriesToList(categories) {
     let newListCategories = [];
 
     for (let category in categories) {
-        newListCategories.push(parseInt(categories[category]));
+        let int = parseInt(categories[category]);
+
+        if (!isNaN(int)){
+            newListCategories.push(int);
+        }
     }
     return newListCategories;
 }

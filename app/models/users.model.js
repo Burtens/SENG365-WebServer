@@ -120,11 +120,6 @@ exports.comparePassword = async function(reference, password) {
 }
 
 async function executeSql(sql, values) {
-    try {
         const [rows] = await db.getPool().query(sql, values);
         return rows;
-    } catch (err) {
-        console.log(err.sql);
-        throw err;
-    }
 }
