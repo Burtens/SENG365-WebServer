@@ -45,14 +45,14 @@ exports.getUser = async function(authToken, id) {
     // Return JSON objects with the correct information
     if (user.auth_token === authToken) {
         return {
-            "first_name" : user.first_name,
-            "last_name" : user.last_name,
+            "firstName" : user.first_name,
+            "lastName" : user.last_name,
             "email" : user.email
         };
     } else {
         return {
-            "first_name" : user.first_name,
-            "last_name" : user.last_name
+            "firstName" : user.first_name,
+            "lastName" : user.last_name
         };
     }
 }

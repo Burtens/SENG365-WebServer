@@ -233,13 +233,10 @@ async function checkValidValues(title, categories, capacity, description, date,
 
     //These options are required when making a new event otherwise they are optional
     if ((title === undefined && creating === true) && typeof title !== "string" || !await events.checkTitle(title)) {
-        console.log('title error');
         return false;
     } else if ((categories === undefined && creating === true) && !Array.isArray(categories)) {
-        console.log('categories error');
         return false;
     } else if ((description === undefined && creating === true) && typeof description !== "string") {
-        console.log('description error')
         return false;
     }
 
