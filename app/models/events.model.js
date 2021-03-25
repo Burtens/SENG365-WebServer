@@ -285,13 +285,6 @@ exports.getOne = async function (id) {
             'WHERE event.id = ? GROUP BY event.id ';
 
     return await executeSql(sql, [id]);
-
-}
-
-// Gets a users id based on
-exports.getID = async function(token) {
-    const sql = 'SELECT id FROM user WHERE auth_token = ?';
-    return executeSql(sql, [token]);
 }
 
 exports.getCategories = async function () {

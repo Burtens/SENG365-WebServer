@@ -1,4 +1,6 @@
 const events = require('../models/events.model');
+const auth = require('../middleware/authentication.middleware');
+
 
 // Array of valid sortBy strings
 const validSortBy = [
@@ -81,7 +83,7 @@ exports.addEvent = async function (req, res) {
     const fee = req.body.fee;
 
     try {
-        const userId = await events.getID(authToken); // Checks if user is logged in
+        const userId = await auth.getID(authToken); // Checks if user is logged in
         if (authToken === undefined || userId.length === 0) {
             res.statusMessage = 'Unauthorized';
             res.status(401).send();
@@ -147,15 +149,15 @@ exports.update = async function (req, res) {
     try {
 
         const eventToUpdate = await events.getOne(id);
-        const eventOrganiser = await events.getID(authToken);
+        const userId = await auth.getID(authToken);
 
-        if (authToken === undefined || eventOrganiser.length === 0) { // Checks if user is logged in
+        if (authToken === undefined || userId.length === 0) { // Checks if user is logged in
             res.statusMessage = 'Unauthorized';
             res.status(401).send();
         } else if (id === undefined || eventToUpdate.length === 0 ) { // Checks if the event exists
             res.statusMessage = 'Not Found';
             res.status(404).send();
-        } else if (eventToUpdate[0].organizerId !== eventOrganiser[0].id) {
+        } else if (id !== userId[0].id) {
             res.statusMessage = 'Forbidden';
             res.status(403).send();
         } else if (!await checkValidValues(title, categories, capacity, description, date,
@@ -186,7 +188,7 @@ exports.delete = async function (req, res) {
     try {
 
         const eventToDelete = await events.getOne(id);
-        const userId = await events.getID(authToken);
+        const userId = await auth.getID(authToken);
 
         if (authToken === undefined || userId.length === 0) { // Checks if user is logged in
             res.statusMessage = 'Unauthorized';

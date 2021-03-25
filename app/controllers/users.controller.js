@@ -1,4 +1,5 @@
 const users = require('../models/users.model');
+const auth = require('../middleware/authentication.middleware');
 
 // Registers a new user
 exports.register = async function(req, res) {
@@ -20,7 +21,7 @@ exports.register = async function(req, res) {
             error = true;
         } else if (firstName === '' || lastName === '') {
             error = true;
-        } else if (await users.checkEmailExists(email)) {
+        } else if (await auth.checkEmailExists(email)) {
             error = true;
         }
 
@@ -47,7 +48,7 @@ exports.login = async function(req, res) {
     let error = false;
 
     try {
-        if (!await users.checkEmailExists(email)) {
+        if (!await auth.checkEmailExists(email)) {
             error = true;
         } else if (!await users.comparePassword(email, password)) {
             error = true;
@@ -72,7 +73,8 @@ exports.login = async function(req, res) {
 // Logs out current user if they are logged in
 exports.logout = async function(req, res) {
     const authToken = req.header('X-Authorization');
-    if (authToken === undefined || authToken === null) {
+    console.log(authToken);
+    if (authToken === undefined || authToken === 'null' || !await auth.isAuthorized(authToken)) {
         res.statusMessage = 'Unauthorized';
         res.status(401).send();
     } else {
@@ -94,7 +96,7 @@ exports.getUser = async function(req, res) {
     const authToken = req.header('X-Authorization');
 
     try {
-        if (!await users.checkIdExists(id)) {
+        if (!await auth.checkUserExistsId(id)) {
             res.statusMessage = 'Not Found';
             res.status(404).send();
         } else {
@@ -122,25 +124,25 @@ exports.updateUser = async function(req, res) {
 
     let error = false;
     let forbidden = false;
-
+    //
     try {
-        if (authToken === undefined || !await users.isAuthorized(id, authToken)) { // Checks if user is allowed to preform this action
+        if (authToken === undefined || authToken === 'null' || !await auth.isAuthorized(authToken)) {
             res.statusMessage = 'Unauthorized';
-            res.status(400).send();
-        } else if (!await users.checkIdExists(id)) {
+            res.status(401).send();
+        } else if (!await auth.checkUserExistsId(id)) {
             res.statusMessage = 'Not Found'
             res.status(404).send();
         } else {
             if (newPassword !== undefined) { // If user wants to change password this should be defined
                 if (currPassword === undefined || !await users.comparePassword(id, currPassword)) {
-                    forbidden = true;
+                    error = true
                 } else if (newPassword === '' || typeof newPassword !== "string") {
                     error = true;
                 }
             }
 
             // Checks if other supplied values are correct
-            if (email !== undefined && (!/.*@.*/.test(email) || await users.checkEmailExists(email))) {
+            if (email !== undefined && (!/.*@.*/.test(email) || await auth.checkEmailExists(email))) {
                 error = true;
             } else if (lastName !== undefined && (lastName === '' || typeof lastName !== "string")) {
                 error = true;
@@ -151,7 +153,7 @@ exports.updateUser = async function(req, res) {
             if (error) {
                 res.statusMessage = 'Bad Request';
                 res.status(400).send();
-            } else if (forbidden) {
+            } else if (!await auth.isPermitted(id, authToken)) {
                 res.statusMessage = 'Forbidden';
                 res.status(403).send();
             } else {

@@ -9,7 +9,7 @@ exports.register = async function(firstName, lastName, email, password) {
     const values = [firstName, lastName, email, hashPass];
 
     await executeSql(sql, values);
-    return executeSql('SELECT id FROM user WHERE email = ?', [email]);
+    return executeSql('SELECT id AS userId FROM user WHERE email = ?', [email]);
 
 }
 
@@ -35,7 +35,6 @@ exports.logout = async function(token) {
     const sql = 'UPDATE user SET auth_token = null WHERE auth_token = ?';
     await executeSql(sql, [token]);
 }
-
 
 exports.getUser = async function(authToken, id) {
     const sql = 'SELECT first_name, last_name, email, auth_token FROM user WHERE id = ?';
@@ -103,32 +102,6 @@ exports.updateUser = async function(id, firstName, lastName, email, newPassword)
         values.push(id);
         await executeSql(sql, values);
     }
-}
-
-exports.checkEmailExists = async function(email) {
-    const sql = 'SELECT email from user WHERE email = ?';
-    const rows = await executeSql(sql, [ email ]);
-
-    // If rows is greater than 0 the email exists
-    return rows.length > 0;
-}
-
-exports.checkIdExists = async function(id) {
-    // TODO: Use this method in events to check for id
-    const sql = 'SELECT id from user WHERE id = ?';
-    const rows = await executeSql(sql, [ id ]);
-
-    // If rows is greater than 0 the email exists
-    return rows.length > 0;
-}
-
-exports.isAuthorized = async function(id, authToken) {
-    const sql = 'SELECT auth_token FROM user WHERE id = ?'
-    const rows = await executeSql(sql, [id]);
-
-    // Checks to see if users auth_token is the same as the one stored in the database
-    return rows[0].auth_token === authToken;
-
 }
 
 exports.comparePassword = async function(reference, password) {
