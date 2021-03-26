@@ -28,6 +28,17 @@ exports.isAuthorized = async function(token) {
 }
 
 
+// Checks if a user is the event organizer
+exports.isEventOrganizer = async function(eventId, userId) {
+
+    const sql = 'SELECT organizer_id FROM event WHERE id = ?'
+    const rows = await executeSql(sql, [eventId])
+
+    return rows[0].organizer_id === userId;
+
+}
+
+
 exports.isPermitted = async function(id, authToken) {
     const sql = 'SELECT auth_token FROM user WHERE id = ?'
     const rows = await executeSql(sql, [id]);

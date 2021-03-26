@@ -72,20 +72,21 @@ exports.login = async function(req, res) {
 
 // Logs out current user if they are logged in
 exports.logout = async function(req, res) {
-    const authToken = req.header('X-Authorization');
-    if (authToken === undefined || authToken === 'null' || !await auth.isAuthorized(authToken)) {
-        res.statusMessage = 'Unauthorized';
-        res.status(401).send();
-    } else {
-        try {
-            await users.logout(authToken);
-            res.statusMessage = 'OK';
-            res.status(200).send();
-        } catch (err) {
-            console.log(err);
-            res.statusMessage = 'Internal Server Error';
-            res.status(500).send();
+    try {
+        const authToken = req.header('X-Authorization');
+        if (authToken === undefined || authToken === 'null' || !await auth.isAuthorized(authToken)) {
+            res.statusMessage = 'Unauthorized';
+            res.status(401).send();
+        } else {
+                await users.logout(authToken);
+                res.statusMessage = 'OK';
+                res.status(200).send();
+
         }
+    } catch (err) {
+        console.log(err);
+        res.statusMessage = 'Internal Server Error';
+        res.status(500).send();
     }
 }
 

@@ -225,6 +225,13 @@ exports.updateEvent = async function (eventId, title, capacity, description, dat
 }
 
 exports.deleteEvent = async function (id) {
+
+    async function deleteEventAttendees(id) {
+        const sql = 'DELETE FROM event_attendees where event_id = ?'
+        await executeSql(sql, [id]);
+    }
+
+    await deleteEventAttendees(id);
     const sql = 'DELETE FROM event where id = ?';
     await executeSql(sql, [id]);
 }
