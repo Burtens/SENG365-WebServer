@@ -86,7 +86,7 @@ exports.addAttendance = async function(req, res){
         } else {
             await eventsAttendees.addAttendance(eventId, userId);
             res.statusMessage = 'OK';
-            res.status(200).send();
+            res.status(201).send();
         }
 
     } catch (err) {
