@@ -59,7 +59,7 @@ exports.addImage = async function(req, res) {
             const oldImage =  await eventImages.getImage(eventId);
             const oldImageFileName = oldImage.length === 1 ? oldImage[0].image_filename : null;
             const imageFileName = 'event_' + eventId + fileEndings[fileType];
-            const filePath = 'storage/images/' + imageFileName
+            const filePath = 'storage/images/' + imageFileName;
 
             if (oldImageFileName !== null) {
                 res.statusMessage = 'OK';
@@ -72,8 +72,8 @@ exports.addImage = async function(req, res) {
             fs.unlink('storage/images/' + oldImageFileName, function () {
                 fs.writeFile(filePath, image, function (err) {
                     if (err) throw err;
-                })
-            })
+                });
+            });
 
             await eventImages.setImage(imageFileName, eventId);
             res.send();

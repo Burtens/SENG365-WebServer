@@ -38,7 +38,7 @@ exports.isEventOrganizer = async function(eventId, userId) {
 
 }
 
-exports.isPermitted = async function(id, authToken) {
+exports.isCurrUser = async function(id, authToken) {
     const sql = 'SELECT auth_token FROM user WHERE id = ?'
     const rows = await executeSql(sql, [id]);
 

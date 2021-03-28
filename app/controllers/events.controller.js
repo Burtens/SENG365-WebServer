@@ -207,7 +207,7 @@ exports.delete = async function (req, res) {
         } else if (id === undefined || eventToDelete.length === 0 ) { // Checks if the event exists
             res.statusMessage = 'Not Found';
             res.status(404).send();
-        } else if (eventToDelete[0].organizerId !== userId[0].id) {
+        } else if (eventToDelete[0].organizerId !== userId[0].id) { // Checks if current user is the event organiser
             res.statusMessage = 'Forbidden';
             res.status(403).send();
         } else {

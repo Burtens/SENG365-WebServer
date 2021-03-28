@@ -152,7 +152,7 @@ exports.updateUser = async function(req, res) {
             if (error) {
                 res.statusMessage = 'Bad Request';
                 res.status(400).send();
-            } else if (!await auth.isPermitted(id, authToken)) {
+            } else if (!await auth.isCurrUser(id, authToken)) {
                 res.statusMessage = 'Forbidden';
                 res.status(403).send();
             } else {
