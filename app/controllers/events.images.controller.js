@@ -48,12 +48,12 @@ exports.addImage = async function(req, res) {
         } else if (userId === undefined) {
             res.statusMessage = 'Unauthorized';
             res.status(401).send();
+        } else if (eventId === undefined || !await auth.eventExists(eventId)) {
+                res.statusMessage = 'Not Found';
+                res.status(404).send();
         } else if (!await auth.isEventOrganizer(eventId, userId)) {
             res.statusMessage = 'Forbidden';
             res.status(403).send();
-        } else if (eventId === undefined || !await auth.eventExists(eventId)) {
-            res.statusMessage = 'Not Found';
-            res.status(404).send();
         } else {
 
             const oldImage =  await eventImages.getImage(eventId);

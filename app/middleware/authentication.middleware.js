@@ -34,7 +34,7 @@ exports.isEventOrganizer = async function(eventId, userId) {
     const sql = 'SELECT organizer_id FROM event WHERE id = ?'
     const rows = await executeSql(sql, [eventId])
 
-    return rows[0].organizer_id === userId;
+    return rows.length === 1 ? rows[0].organizer_id === userId : false;
 
 }
 
@@ -42,7 +42,7 @@ exports.isPermitted = async function(id, authToken) {
     const sql = 'SELECT auth_token FROM user WHERE id = ?'
     const rows = await executeSql(sql, [id]);
 
-    return rows[0].auth_token === authToken;
+    return rows.length === 1 ? rows[0].auth_token === authToken : false;
 }
 
 // Gets a users id based on authentication token
