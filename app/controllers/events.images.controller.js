@@ -13,10 +13,10 @@ exports.getImage = async function(req, res) {
 
     try {
         const images = await eventImages.getImage(eventId);
-        const imageFileName = images[0].image_filename;
+        const imageFileName = images.length === 1 ? images[0].image_filename : null;
         const imagePath = 'storage/images/' + imageFileName;
 
-        if (!await fs.existsSync(imagePath)) {
+        if (!fs.existsSync(imagePath)) {
             res.statusMessage = 'Not Found';
             res.status(404).send();
         } else {
@@ -57,7 +57,7 @@ exports.addImage = async function(req, res) {
         } else {
 
             const oldImage =  await eventImages.getImage(eventId);
-            const oldImageFileName = oldImage[0].image_filename;
+            const oldImageFileName = oldImage.length === 1 ? oldImage[0].image_filename : null;
             const imageFileName = 'event_' + eventId + fileEndings[fileType];
             const filePath = 'storage/images/' + imageFileName
 
