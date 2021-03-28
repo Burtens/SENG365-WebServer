@@ -22,7 +22,7 @@ exports.getAll = async function(req, res) {
     try {
         const currAttendees = await eventsAttendees.getAll(eventId);
 
-        if (!await eventsAttendees.eventExists(eventId)) {
+        if (!await auth.eventExists(eventId)) {
             res.statusMessage = 'Not Found';
             res.status(404).send();
         } else {
@@ -76,7 +76,7 @@ exports.addAttendance = async function(req, res){
         if (authToken === undefined || authToken === 'null' || !await auth.isAuthorized(authToken)) {
             res.statusMessage = 'Unauthorized';
             res.status(401).send();
-        } else if (!await eventsAttendees.eventExists(eventId)) {
+        } else if (!await auth.eventExists(eventId)) {
             res.statusMessage = 'Not Found';
             res.status(404).send();
         } else if (await isAlreadyAttending(currAttendees, userId) ||
@@ -108,7 +108,7 @@ exports.removeAttendance = async function(req, res) {
         if (authToken === undefined || authToken === 'null' || !await auth.isAuthorized(authToken)) {
             res.statusMessage = 'Unauthorized';
             res.status(401).send();
-        } else if (!await eventsAttendees.eventExists(eventId)) {
+        } else if (!await auth.eventExists(eventId)) {
             res.statusMessage = 'Not Found';
             res.status(404).send();
         } else if (!await isAlreadyAttending(currAttendees, userId) ||
@@ -147,7 +147,7 @@ exports.editAttendance = async function(req, res) {
         } else if (!await auth.isEventOrganizer(eventId, userId)) {
             res.statusMessage = 'Forbidden';
             res.status(403).send();
-        } else if (!await eventsAttendees.eventExists(eventId) || !await auth.checkUserExistsId(userToEditId)) {
+        } else if (!await auth.eventExists(eventId) || !await auth.checkUserExistsId(userToEditId)) {
         res.statusMessage = 'Not Found';
         res.status(404).send();
         } else if (![statusCodes[1],statusCodes[2],statusCodes[3]].includes(status)) {

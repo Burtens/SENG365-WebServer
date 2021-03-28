@@ -12,7 +12,6 @@ exports.getAll = async function (eventId) {
 
 
 exports.addAttendance = async function (eventId, userId) {
-
     const sql = 'INSERT INTO event_attendees (event_id, user_id, attendance_status_id) VALUES (?, ?, ?)';
     await executeSql(sql, [eventId, userId, 2]);
 }
@@ -20,11 +19,6 @@ exports.addAttendance = async function (eventId, userId) {
 exports.getEventDate = async function (eventId) {
     const sql = 'SELECT date FROM event WHERE id = ?'
     return (await executeSql(sql, [eventId]))[0].date;
-}
-
-exports.eventExists = async function (eventId) {
-    const sql = 'SELECT id FROM event WHERE id = ?';
-    return (await executeSql(sql, [eventId])).length === 1;
 }
 
 exports.getAttendanceStatus = async function (eventId, userId) {

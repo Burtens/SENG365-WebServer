@@ -38,7 +38,6 @@ exports.isEventOrganizer = async function(eventId, userId) {
 
 }
 
-
 exports.isPermitted = async function(id, authToken) {
     const sql = 'SELECT auth_token FROM user WHERE id = ?'
     const rows = await executeSql(sql, [id]);
@@ -50,6 +49,11 @@ exports.isPermitted = async function(id, authToken) {
 exports.getID = async function(token) {
     const sql = 'SELECT id FROM user WHERE auth_token = ?';
     return executeSql(sql, [token]);
+}
+
+exports.eventExists = async function (eventId) {
+    const sql = 'SELECT id FROM event WHERE id = ?';
+    return (await executeSql(sql, [eventId])).length === 1;
 }
 
 async function executeSql(sql, values) {
