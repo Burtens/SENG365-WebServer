@@ -144,12 +144,12 @@ exports.editAttendance = async function(req, res) {
         if (authToken === undefined || authToken === 'null' || !await auth.isAuthorized(authToken)) {
             res.statusMessage = 'Unauthorized';
             res.status(401).send();
+        } else if (!await auth.eventExists(eventId) || !await auth.checkUserExistsId(userToEditId)) {
+                res.statusMessage = 'Not Found';
+                res.status(404).send();
         } else if (!await auth.isEventOrganizer(eventId, userId)) {
             res.statusMessage = 'Forbidden';
             res.status(403).send();
-        } else if (!await auth.eventExists(eventId) || !await auth.checkUserExistsId(userToEditId)) {
-        res.statusMessage = 'Not Found';
-        res.status(404).send();
         } else if (![statusCodes[1],statusCodes[2],statusCodes[3]].includes(status)) {
             res.statusMessage = 'Bad Request';
             res.status(400).send();
