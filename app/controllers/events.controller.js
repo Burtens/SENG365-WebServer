@@ -31,6 +31,8 @@ exports.getAll = async function (req, res) {
         // Checks if all given values are valid, if they arent return status '400' "Bad Request"
         if (startIndex !== undefined && (isNaN(parseInt(startIndex)) || parseInt(startIndex) < 0)) {
             error = true;
+        } else if (q !== undefined && (q.length < 1)) {
+            error = true;
         } else if (count !== undefined && (isNaN(parseInt(count)) || parseInt(count) < 0)) {
             error = true;
         } else if (organizerId !== undefined && (isNaN(parseInt(organizerId)) || parseInt(organizerId) < 0)) {
@@ -43,9 +45,10 @@ exports.getAll = async function (req, res) {
                 categoryList = [categoryList];
             }
 
+
             for (const category in categoryList) {
                 const categoryNum = categoryList[category];
-                if (isNaN(categoryNum) || categoryNum < 0 || !await events.checkCategory(categoryNum)) {
+                if (isNaN(categoryNum) || categoryNum < 0 || categoryNum === '') {
                     error = true;
                 }
             }
@@ -291,5 +294,5 @@ async function convertCategoriesToList(categories) {
             newListCategories.push(int);
         }
     }
-    return newListCategories;
+    return newListCategories.sort((a, b) => {return a-b});
 }

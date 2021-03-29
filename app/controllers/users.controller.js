@@ -21,7 +21,7 @@ exports.register = async function(req, res) {
             error = true;
         } else if (firstName === '' || lastName === '') {
             error = true;
-        } else if (await auth.checkEmailExists(email)) {
+        } else if (await auth.checkEmailExists(email, null)) {
             error = true;
         }
 
@@ -48,7 +48,7 @@ exports.login = async function(req, res) {
     let error = false;
 
     try {
-        if (!await auth.checkEmailExists(email)) {
+        if (!await auth.checkEmailExists(email, null)) {
             error = true;
         } else if (!await users.comparePassword(email, password)) {
             error = true;
@@ -141,7 +141,7 @@ exports.updateUser = async function(req, res) {
             }
 
             // Checks if other supplied values are correct
-            if (email !== undefined && (!/.*@.*/.test(email) || await auth.checkEmailExists(email))) {
+            if (email !== undefined && (!/.*@.*/.test(email) || await auth.checkEmailExists(email, id))) {
                 error = true;
             } else if (lastName !== undefined && (lastName === '' || typeof lastName !== "string")) {
                 error = true;

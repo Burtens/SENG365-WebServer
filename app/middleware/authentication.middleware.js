@@ -1,12 +1,21 @@
 const db = require('../../config/db');
 
 // Checks if email exists
-exports.checkEmailExists = async function(email) {
-    const sql = 'SELECT email from user WHERE email = ?';
+exports.checkEmailExists = async function(email, userId) {
+    const sql = 'SELECT id, email from user WHERE email = ?';
     const rows = await executeSql(sql, [ email ]);
 
-    // If rows is greater than 0 the email exists
-    return rows.length > 0;
+    // If a userId isn't null we will check if the email belongs to the current user
+    // This is used to allow the user to patch with the same email.
+    if (userId !== null) {
+        if (rows.length === 1) {
+            return rows[0].id !== parseInt(userId);
+        } else {
+            return false;
+        }
+    } else {
+        return rows.length > 0;
+    }
 }
 
 // Checks if given userId exists
@@ -38,6 +47,7 @@ exports.isEventOrganizer = async function(eventId, userId) {
 
 }
 
+// Checks to see if the auth token matches the users auth_token
 exports.isCurrUser = async function(id, authToken) {
     const sql = 'SELECT auth_token FROM user WHERE id = ?'
     const rows = await executeSql(sql, [id]);
