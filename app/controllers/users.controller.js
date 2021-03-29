@@ -149,7 +149,7 @@ exports.updateUser = async function(req, res) {
                 error = true;
             }
 
-            if (error) {
+            if (Object.keys(req.body).length === 0 || error) {
                 res.statusMessage = 'Bad Request';
                 res.status(400).send();
             } else if (!await auth.isCurrUser(id, authToken)) {

@@ -120,6 +120,7 @@ exports.getOne = async function (req, res) {
 
     try {
         const event = await events.getOne(id); // Attempts to get one event from the database
+
         if (event.length === 0){
             res.statusMessage = 'Not Found';
             res.status(404).send();
@@ -161,7 +162,6 @@ exports.update = async function (req, res) {
     const fee = req.body.fee;
 
     try {
-
         const eventToUpdate = await events.getOne(id);
         const userId = await auth.getID(authToken);
 
@@ -171,10 +171,10 @@ exports.update = async function (req, res) {
         } else if (id === undefined || eventToUpdate.length === 0 ) { // Checks if the event exists
             res.statusMessage = 'Not Found';
             res.status(404).send();
-        } else if (id !== userId[0].id) {
+        } else if (eventToUpdate[0].organizerId !== userId[0].id) {
             res.statusMessage = 'Forbidden';
             res.status(403).send();
-        } else if (!await checkValidValues(title, categories, capacity, description, date,
+        } else if (Object.keys(req.body).length === 0 || !await checkValidValues(title, categories, capacity, description, date,
             isOnline, url, venue, requiresAttendanceControl, fee, false)) {
             res.statusMessage = 'Bad Request';
             res.status(400).send();
