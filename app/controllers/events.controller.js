@@ -48,7 +48,7 @@ exports.getAll = async function (req, res) {
 
             for (const category in categoryList) {
                 const categoryNum = categoryList[category];
-                if (isNaN(categoryNum) || categoryNum < 0 || categoryNum === '') {
+                if (isNaN(categoryNum) || categoryNum < 0 || !await events.checkCategory(categoryNum)) {
                     error = true;
                 }
             }
